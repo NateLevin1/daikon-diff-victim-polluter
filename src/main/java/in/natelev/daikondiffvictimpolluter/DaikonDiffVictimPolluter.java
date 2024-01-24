@@ -63,23 +63,16 @@ public class DaikonDiffVictimPolluter {
         ReducedPptMap polluterVictim = getPptMap(new File(args[0]));
         log(BLUE + "Loaded polluter+victim. Now loading victim..." + RESET);
         ReducedPptMap victim = getPptMap(new File(args[1]));
-        log(CYAN + "Loaded victim. Now loading polluter..." + RESET);
-        ReducedPptMap polluter = getPptMap(new File(args[2]));
         log(GREEN + "\rLoaded all PptMaps!\n" + RESET);
-
-        ReducedPptMap pvMinusP = allPptsinPVButNotOnlyInP(polluterVictim, polluter,
-                victim);
 
         if (debug) {
             String debugPrelude = "\n\n\n" + RED + "!!! DEBUG: " + RESET;
             log(debugPrelude + "Polluter+Victim\n" + polluterVictim);
-            log(debugPrelude + "Polluter\n" + polluter);
             log(debugPrelude + "Victim\n" + victim);
-            log(debugPrelude + "PV-P\n" + pvMinusP);
         }
 
         log(BLUE + "Diffing..." + RESET);
-        ArrayList<DiffedInvs> rankedDiffedInvs = diffAndRank(pvMinusP, victim);
+        ArrayList<DiffedInvs> rankedDiffedInvs = diffAndRank(polluterVictim, victim);
         log(GREEN + "Finished diffing." + RESET);
 
         if (rankedDiffedInvs.size() == 0) {
@@ -154,20 +147,6 @@ public class DaikonDiffVictimPolluter {
         }
 
         return null;
-    }
-
-    private static ReducedPptMap allPptsinPVButNotOnlyInP(ReducedPptMap polluterVictim, ReducedPptMap polluter,
-            ReducedPptMap victim) {
-        ReducedPptMap pvMinusP = new ReducedPptMap();
-        for (ReducedPpt ppt : polluterVictim.pptIterable()) {
-            boolean inPolluter = polluter.containsName(ppt.name);
-            boolean inVictim = victim.containsName(ppt.name);
-
-            if (!inPolluter || inVictim) {
-                pvMinusP.map.put(ppt.name, ppt);
-            }
-        }
-        return pvMinusP;
     }
 
     private static ArrayList<DiffedInvs> diffAndRank(ReducedPptMap pvMinusP, ReducedPptMap victim) {
