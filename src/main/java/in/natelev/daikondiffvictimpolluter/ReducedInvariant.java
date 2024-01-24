@@ -97,7 +97,7 @@ public class ReducedInvariant implements Comparable<ReducedInvariant> {
                     }
                 }
 
-                uniquelyHad.add(StringEscapeUtils.escapeJava(eqValue));
+                uniquelyHad.add(eqValue);
             }
         }
 
@@ -150,6 +150,13 @@ public class ReducedInvariant implements Comparable<ReducedInvariant> {
                     } else if (invariant instanceof OneOfScalar && !((OneOfScalar) invariant).is_hashcode()) {
                         eqValues = Arrays.stream(((OneOfScalar) invariant).getElts()).mapToObj(String::valueOf)
                                 .toArray(String[]::new);
+                    }
+
+                    // escape eqValues
+                    if (eqValues != null) {
+                        for (int i = 0; i < eqValues.length; i++) {
+                            eqValues[i] = StringEscapeUtils.escapeJava(eqValues[i]);
+                        }
                     }
 
                     String firstVar = invariant.ppt.var_infos.length > 0 ? invariant.ppt.var_infos[0].name() : null;
