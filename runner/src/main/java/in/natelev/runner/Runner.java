@@ -11,6 +11,7 @@ import org.junit.runner.Request;
 import org.junit.runner.Result;
 import org.junit.runner.manipulation.Filter;
 import org.junit.runner.notification.Failure;
+import org.junit.runner.notification.RunListener;
 
 public class Runner {
     public static String RESET = "";
@@ -29,6 +30,7 @@ public class Runner {
     }
 
     public static PolluterRerunner polluterRerunner;
+    public static boolean victimRunning = false;
 
     public static void main(String[] args) {
         JUnitCore junit = new JUnitCore();
@@ -41,6 +43,7 @@ public class Runner {
             } else if (args.length == 1) {
                 TestArg test = new TestArg(args[0]);
                 System.out.println(YELLOW + "Running " + test + RESET);
+                victimRunning = true;
                 Result result = junit.run(Request.method(test.getTestClass(), test.getMethod()));
                 exitCode = printResult(result, test.toString());
             } else if (args.length == 2) {
@@ -84,6 +87,14 @@ public class Runner {
                 TestArg test1 = new TestArg(args[0]);
                 TestArg test2 = new TestArg(args[1]);
                 if (test1.getClassName().equals(test2.getClassName())) {
+                    junit.addListener(new RunListener() {
+                        @Override
+                        public void testStarted(Description description) throws Exception {
+                            if (description.getMethodName().equals(test2.getMethod())) {
+                                victimRunning = true;
+                            }
+                        }
+                    });
                     // run in same Runner
                     System.out.println(YELLOW + "Running " + test1 + " and " + test2 + RESET);
                     Request request = Request.aClass(test1.getTestClass()).filterWith(new Filter() {
@@ -115,7 +126,8 @@ public class Runner {
                     Result result = junit.run(Request.method(test1.getTestClass(), test1.getMethod()));
                     exitCode = printResult(result, test1.toString());
                     if (exitCode == 0) {
-                        System.out.println(YELLOW + "Running " + test1 + RESET);
+                        System.out.println(YELLOW + "Running " + test2 + RESET);
+                        victimRunning = true;
                         Result result2 = junit.run(Request.method(test2.getTestClass(), test2.getMethod()));
                         exitCode = printResult(result2, test2.toString());
                     }
