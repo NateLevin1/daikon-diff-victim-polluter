@@ -9,7 +9,9 @@ import daikon.PptTopLevel;
 import daikon.VarInfo;
 import daikon.VarInfo.VarFlags;
 import daikon.inv.unary.scalar.OneOfScalar;
+import daikon.inv.unary.sequence.OneOfSequence;
 import daikon.inv.unary.string.OneOfString;
+import daikon.inv.unary.stringsequence.OneOfStringSequence;
 
 public class ReducedInvariant implements Comparable<ReducedInvariant> {
     private String value;
@@ -150,6 +152,26 @@ public class ReducedInvariant implements Comparable<ReducedInvariant> {
                     } else if (invariant instanceof OneOfScalar && !((OneOfScalar) invariant).is_hashcode()) {
                         eqValues = Arrays.stream(((OneOfScalar) invariant).getElts()).mapToObj(String::valueOf)
                                 .toArray(String[]::new);
+                    } else if (invariant instanceof OneOfSequence) {
+                        // one of { [], [de.strullerbaumann.visualee.dependency.entity.Dependency] }
+                        long[] value = ((long[]) ((OneOfSequence) invariant).elt());
+                        if (value.length == 0) {
+                            eqValues = new String[] { "[]" };
+                        } else if ((value.length == 1) && (value[0] == 0)) {
+                            eqValues = new String[] { "[null]" };
+                        } else {
+                            eqValues = new String[] { "TODO: handle" };
+                            // TODO: handle:
+                            // - contains no nulls and has only one value, of length
+                            // - contains only nulls and has only one value, of length
+                            // - has only one value, of length
+                        }
+                    } else if (invariant instanceof OneOfStringSequence) {
+                        OneOfStringSequence inv = (OneOfStringSequence) invariant;
+                        eqValues = new String[inv.num_elts()];
+                        for (int i = 0; i < inv.num_elts(); i++) {
+                            eqValues[i] = Arrays.toString((String[]) (inv.elt(i)));
+                        }
                     }
 
                     // escape eqValues
