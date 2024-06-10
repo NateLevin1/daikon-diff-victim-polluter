@@ -43,7 +43,9 @@ else
 fi
 
 # TODO: When we switch to `setup.sh` for all setup, remove this
-if [[ -z "${NO_SETUP}" ]]; then
+if [[ -z "${iDFlakiesLocalPath}" ]]; then
+    echo "Warning: no iDFlakiesLocalPath provided - will not set up"
+else
     "$scriptsDir/setup.sh" "$gitURL" "$sha" "$module" "$iDFlakiesLocalPath"
 fi
 
