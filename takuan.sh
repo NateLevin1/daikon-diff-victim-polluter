@@ -72,6 +72,7 @@ if [[ -z "${NO_GEN}" ]]; then
 fi
 
 PROBLEM_INVARIANTS_OUTPUT="$cwd/tmp-$gitRepoName-problem-invariants.pvi"
+PROBLEM_INV_END_TIME=0
 if [[ -z "${NO_DIFF}" ]]; then
     PROBLEM_INV_START_TIME=$(getCurrentMillis)
     if ! java -cp "$takuanRootDir/target/classes:$DAIKONDIR/daikon.jar" -Xmx6g -XX:+UseG1GC in.natelev.daikondiffvictimpolluter.DaikonDiffVictimPolluter daikon-pv.inv daikon-victim.inv daikon-polluter.inv \
@@ -81,6 +82,7 @@ if [[ -z "${NO_DIFF}" ]]; then
         exit 1
     fi
     echo "[!] [P-Inv] Took $(( $(getCurrentMillis) - $PROBLEM_INV_START_TIME ))ms"
+    PROBLEM_INV_END_TIME=$(getCurrentMillis)
 fi
 
 if [[ -z "${NO_FIND_CLEANER}" ]]; then
@@ -115,4 +117,6 @@ if [[ -n "${CREATE_GISTS}" ]]; then
     rm "$cwd/!-$gitRepoName.dinv"
 fi
 
-echo -e "\x1B[32m✓ Completed Takuan. Took ""$SECONDS""s total, $(( $(getCurrentMillis) - $POST_SETUP_START_TIME ))ms post-setup.\x1B[0m"
+echo -e "\x1B[32m✓ Completed Takuan. Took ""$SECONDS""s total, $(( $(getCurrentMillis) - $POST_SETUP_START_TIME )) ms post-setup, \x1B[34m$(( $PROBLEM_INV_END_TIME - $POST_SETUP_START_TIME )) ms to find problem invariants.\x1B[0m"
+echo ""
+echo -e "Result: \x1B[32m$(( $(getCurrentMillis) - $POST_SETUP_START_TIME ))    \x1B[34m$(( $PROBLEM_INV_END_TIME - $POST_SETUP_START_TIME ))\x1B[0m"

@@ -80,6 +80,12 @@ public class Runner {
                     });
 
                     System.out.println(YELLOW + "Running all tests" + RESET);
+                    junit.addListener(new RunListener() {
+                        @Override
+                        public void testStarted(Description description) throws Exception {
+                            System.out.println("testStarted: " + description.getMethodName());
+                        }
+                    });
                     junit.run(request);
                     return;
                 }
